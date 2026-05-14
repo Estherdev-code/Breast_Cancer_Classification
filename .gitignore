@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+*.pyc
+cbis-ddsm/
+diagnostics.db
+.DS_Store
+*.log

@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Breast Cancer Detection System</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Segoe UI", Tahoma, sans-serif;
+        background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(233, 30, 99, 0.15);
+        overflow: hidden;
+      }
+      .header {
+        background: linear-gradient(135deg, #e91e63 0%, #ad1457 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+        position: relative;
+      }
+      .header h1 {
+        font-size: 26px;
+        margin-bottom: 8px;
+      }
+      .header p {
+        opacity: 0.9;
+        font-size: 14px;
+      }
+      .ribbon-icon {
+        font-size: 32px;
+        margin-bottom: 10px;
+      }
+      .content {
+        padding: 40px;
+      }
+      .upload-section {
+        border: 2px dashed #f48fb1;
+        border-radius: 10px;
+        padding: 40px;
+        text-align: center;
+        transition: all 0.3s;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+      }
+      .upload-section::before {
+        content: "🎀";
+        position: absolute;
+        font-size: 250px;
+        opacity: 0.08;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        z-index: 0;
+      }
+      .upload-section > * {
+        position: relative;
+        z-index: 1;
+      }
+      .upload-section:hover {
+        border-color: #e91e63;
+        background: #fce4ec;
+      }
+      .upload-section.dragover {
+        border-color: #e91e63;
+        background: #fce4ec;
+      }
+      .upload-icon {
+        font-size: 48px;
+        margin-bottom: 15px;
+      }
+      .upload-section h3 {
+        color: #880e4f;
+        margin-bottom: 10px;
+      }
+      .upload-section p {
+        color: #ad1457;
+        font-size: 14px;
+      }
+      #fileInput {
+        display: none;
+      }
+      .file-name {
+        margin-top: 15px;
+        color: #e91e63;
+        font-weight: 600;
+        display: none;
+      }
+      .btn {
+        background: #e91e63;
+        color: white;
+        padding: 14px 40px;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 20px;
+        transition: background 0.3s;
+        box-shadow: 0 2px 8px rgba(233, 30, 99, 0.3);
+      }
+      .btn:hover {
+        background: #c2185b;
+      }
+      .btn:disabled {
+        background: #f8bbd0;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+      .loading {
+        text-align: center;
+        margin-top: 20px;
+        display: none;
+      }
+      .spinner {
+        border: 3px solid #fce4ec;
+        border-top: 3px solid #e91e63;
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 10px;
+      }
+      @keyframes spin {
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      .result {
+        margin-top: 30px;
+        padding: 30px;
+        border-radius: 10px;
+        display: none;
+      }
+      .result.benign {
+        background: #e8f5e9;
+        border-left: 5px solid #43a047;
+      }
+      .result.malignant {
+        background: #ffebee;
+        border-left: 5px solid #c62828;
+      }
+      .result-header {
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 10px;
+      }
+      .benign .result-header {
+        color: #2e7d32;
+      }
+      .malignant .result-header {
+        color: #c62828;
+      }
+      .confidence {
+        font-size: 18px;
+        margin-bottom: 15px;
+        color: #2c3e50;
+      }
+      .disclaimer {
+        background: #fff8e1;
+        border-left: 4px solid #ffa000;
+        padding: 12px 15px;
+        margin-top: 15px;
+        font-size: 13px;
+        color: #6d4c00;
+        border-radius: 4px;
+      }
+      .footer {
+        text-align: center;
+        padding: 20px;
+        color: #ad1457;
+        font-size: 13px;
+        border-top: 1px solid #fce4ec;
+        background: #fff5f8;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="ribbon-icon">🎀</div>
+        <h1>Breast Cancer Detection System</h1>
+        <p>AI-Assisted Mammogram Analysis with CLAHE + ResNet50</p>
+      </div>
+
+      <div class="content">
+        <div
+          class="upload-section"
+          id="uploadSection"
+          onclick="document.getElementById('fileInput').click()"
+        >
+          <div class="upload-icon">📤</div>
+          <h3>Upload Mammogram Image</h3>
+          <p>Click to browse or drag and drop</p>
+          <p style="margin-top: 5px; font-size: 12px">Supported: JPG, PNG</p>
+          <div class="file-name" id="fileName"></div>
+          <input type="file" id="fileInput" accept="image/*" />
+        </div>
+
+        <div style="text-align: center">
+          <button class="btn" id="analyzeBtn" onclick="analyzeImage()" disabled>
+            Analyze Image
+          </button>
+        </div>
+
+        <div class="loading" id="loading">
+          <div class="spinner"></div>
+          <p style="color: #ad1457">Analyzing mammogram...</p>
+        </div>
+
+        <div class="result" id="result">
+          <div class="result-header" id="resultHeader"></div>
+          <div class="confidence" id="confidence"></div>
+          <div class="disclaimer" id="disclaimer"></div>
+        </div>
+      </div>
+
+      <div class="footer">
+        🎀 Final Year Project — Computer-Aided Diagnostic System 🎀
+      </div>
+    </div>
+
+    <script>
+      const fileInput = document.getElementById("fileInput");
+      const fileName = document.getElementById("fileName");
+      const analyzeBtn = document.getElementById("analyzeBtn");
+      const uploadSection = document.getElementById("uploadSection");
+
+      let selectedFile = null;
+
+      fileInput.addEventListener("change", (e) => {
+        if (e.target.files.length > 0) {
+          selectedFile = e.target.files[0];
+          fileName.textContent = "📎 " + selectedFile.name;
+          fileName.style.display = "block";
+          analyzeBtn.disabled = false;
+        }
+      });
+
+      uploadSection.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        uploadSection.classList.add("dragover");
+      });
+      uploadSection.addEventListener("dragleave", () => {
+        uploadSection.classList.remove("dragover");
+      });
+      uploadSection.addEventListener("drop", (e) => {
+        e.preventDefault();
+        uploadSection.classList.remove("dragover");
+        if (e.dataTransfer.files.length > 0) {
+          selectedFile = e.dataTransfer.files[0];
+          fileName.textContent = "📎 " + selectedFile.name;
+          fileName.style.display = "block";
+          analyzeBtn.disabled = false;
+        }
+      });
+
+      async function analyzeImage() {
+        if (!selectedFile) return;
+
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+
+        document.getElementById("loading").style.display = "block";
+        document.getElementById("result").style.display = "none";
+        analyzeBtn.disabled = true;
+
+        try {
+          const response = await fetch("/predict", {
+            method: "POST",
+            body: formData,
+          });
+          const data = await response.json();
+
+          document.getElementById("loading").style.display = "none";
+
+          if (data.error) {
+            alert("Error: " + data.error);
+            analyzeBtn.disabled = false;
+            return;
+          }
+
+          const resultDiv = document.getElementById("result");
+          resultDiv.className = "result " + data.prediction.toLowerCase();
+          document.getElementById("resultHeader").textContent =
+            (data.prediction === "MALIGNANT" ? "⚠️ " : "✓ ") + data.prediction;
+          document.getElementById("confidence").textContent =
+            "Confidence: " + data.confidence + "%";
+          document.getElementById("disclaimer").textContent = data.disclaimer;
+          resultDiv.style.display = "block";
+
+          analyzeBtn.disabled = false;
+        } catch (error) {
+          document.getElementById("loading").style.display = "none";
+          alert("An error occurred: " + error.message);
+          analyzeBtn.disabled = false;
+        }
+      }
+    </script>
+  </body>
+</html>
