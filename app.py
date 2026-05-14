@@ -29,9 +29,25 @@ DATABASE     = "diagnostics.db"
 
 
 # ─────────────────────────────────────────────
-# REBUILD MODEL ARCHITECTURE
-# (Must match exactly how it was trained in Colab)
+# CONFIGURATION
 # ─────────────────────────────────────────────
+WEIGHTS_PATH = "resnet50_weights.weights.h5"
+DATABASE     = "diagnostics.db"
+
+# ─────────────────────────────────────────────
+# DOWNLOAD MODEL FROM HUGGING FACE IF NOT PRESENT
+# ─────────────────────────────────────────────
+if not os.path.exists(WEIGHTS_PATH):
+    print("Downloading model from Hugging Face...")
+    from huggingface_hub import hf_hub_download
+    downloaded_path = hf_hub_download(
+        repo_id="Estherdev-code/breast-cancer-resnet50",
+        filename="resnet50_weights.weights.h5"
+    )
+    # Copy/move file to expected path
+    import shutil
+    shutil.copy(downloaded_path, WEIGHTS_PATH)
+    print("Model downloaded successfully.")
 def build_model():
     base_model = ResNet50(weights=None, include_top=False, input_shape=(224, 224, 3))
 
