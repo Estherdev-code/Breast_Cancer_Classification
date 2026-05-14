@@ -21,11 +21,7 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-# ─────────────────────────────────────────────
-# CONFIGURATION
-# ─────────────────────────────────────────────
-WEIGHTS_PATH = "resnet50_weights.weights.h5"
-DATABASE     = "diagnostics.db"
+
 
 
 # ─────────────────────────────────────────────
